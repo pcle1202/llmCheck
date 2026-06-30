@@ -1,5 +1,6 @@
 import os
 import time
+import requests
 from dotenv import load_dotenv
 from groq import Groq
 from google import genai
@@ -26,7 +27,7 @@ def query_groq(prompt: str, model: str = "llama-3.1-8b-instant") -> dict:
     except Exception as e:
         return {"text": None, "latency": None, "error": str(e)}
 
-def query_gemini(prompt: str, model: str = "gemini-2.0-flash") -> dict:
+def query_gemini(prompt: str, model: str = "gemini-2.5-flash") -> dict:
     start = time.time()
     try:
         response = gemini_client.models.generate_content(
@@ -42,7 +43,30 @@ def query_gemini(prompt: str, model: str = "gemini-2.0-flash") -> dict:
     except Exception as e:
         return {"text": None, "latency": None, "error": str(e)}
 
+def query_ollama(prompt: str, model: str = "llama3.2:3b") -> dict:
+    start = time.time()
+    try:
+        response = requests.post(
+            "http://localhost:11434/api/chat",
+            json={
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False,
+            },
+        )
+        response.raise_for_status()
+        latency = time.time() - start
+        return {
+            "text": response.json()["message"]["content"],
+            "latency": round(latency, 3),
+            "error": None,
+        }
+    except Exception as e:
+        return {"text": None, "latency": None, "error": str(e)}
+
+
 MODELS = {
     "groq": query_groq,
-    "gemini": query_gemini
+    "gemini": query_gemini,
+    "ollama": query_ollama,
 }
