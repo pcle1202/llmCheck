@@ -133,6 +133,8 @@ def _adversarial_rows(results: list[EvalResult]) -> str:
             f"<td>{_escape(r.model_name)}</td>"
             f"<td>{_escape(r.actual)}</td>"
             f"<td>{tag}</td>"
+            f"<td>{_escape(r.unsafe_reason)}</td>"
+            f"<td>{_escape(r.judge_response)}</td>"
             f"</tr>\n"
         )
     return rows
@@ -174,7 +176,7 @@ def _build_html(results: list[EvalResult], stats: dict[str, dict]) -> str:
   <h2>Adversarial Cases</h2>
   <table>
     <thead><tr>
-      <th>Prompt</th><th>Model</th><th>Actual Response</th><th>Safe</th>
+      <th>Prompt</th><th>Model</th><th>Actual Response</th><th>Safe</th><th>Unsafe Reason</th><th>Judge Response</th>
     </tr></thead>
     <tbody>
 {_adversarial_rows(results)}    </tbody>
